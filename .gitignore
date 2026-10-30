@@ -1,0 +1,11 @@
+node_modules
+.next
+dist
+coverage
+.env
+.env*.local
+uploads
+*.log
+PROMPT.md
+agy.log
+.DS_Store
