@@ -234,6 +234,17 @@ describe('Properties Endpoints', () => {
       expect(res.body.properties.length).toBe(1);
       expect(res.body.properties[0].title).toContain('Koramangala');
     });
+
+    it('rejects malformed or reversed availability dates with 400', async () => {
+      const bad = await request(app).get('/api/properties?availableFrom=next-week&availableTo=2026-12-10');
+      expect(bad.status).toBe(400);
+
+      const onlyOne = await request(app).get('/api/properties?availableFrom=2026-12-01');
+      expect(onlyOne.status).toBe(200);
+
+      const reversed = await request(app).get('/api/properties?availableFrom=2026-12-10&availableTo=2026-12-01');
+      expect(reversed.status).toBe(400);
+    });
   });
 
   describe('PATCH & DELETE /api/properties/:id', () => {

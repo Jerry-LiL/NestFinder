@@ -119,7 +119,19 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
 
     // Availability filter: exclude properties that have an APPROVED booking overlapping the requested window.
     // Note: We use APPROVED bookings only because PENDING bookings may be rejected or cancelled.
+    // Only applied once both dates are set; the search form sends them one at a time.
     if (availableFrom && availableTo) {
+      const isoDate = /^\d{4}-\d{2}-\d{2}$/;
+      const from = String(availableFrom);
+      const to = String(availableTo);
+      if (!isoDate.test(from) || !isoDate.test(to) || isNaN(Date.parse(from)) || isNaN(Date.parse(to))) {
+        res.status(400).json({ error: 'availableFrom and availableTo must both be YYYY-MM-DD dates' });
+        return;
+      }
+      if (to <= from) {
+        res.status(400).json({ error: 'availableTo must be after availableFrom' });
+        return;
+      }
       whereClauses.push(`
         NOT EXISTS (
           SELECT 1 FROM bookings b
